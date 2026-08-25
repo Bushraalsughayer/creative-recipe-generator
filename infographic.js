@@ -1,9 +1,9 @@
 
-const PUBLISHED_ID = "2PACX-1vRE4XZA8gLvwCyqNfiQ7lzUUCBPbePxhDLTVs3IHcEZyw0xVIx3wV322Xv3JIr29pg3niBAK8RXDRbO";
-
 function parseCSV(text) {
   const rows = [];
-  let row = [], field = "", inQuotes = false;
+  let row = [];
+  let field = "";
+  let inQuotes = false;
 
   for (let i = 0; i < text.length; i++) {
     const ch = text[i];
@@ -36,67 +36,100 @@ function parseCSV(text) {
   return rows;
 }
 
-async function loadPublishedSheetByGid(gid) {
-  const url =
-    `https://docs.google.com/spreadsheets/d/e/${PUBLISHED_ID}/pub` +
-    `?gid=${encodeURIComponent(gid)}&single=true&output=csv&_=${Date.now()}`;
-
+async function loadCSV(filename) {
+  const url = `${filename}?v=${Date.now()}`;
   const response = await fetch(url, { cache: "no-store" });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+  if (!response.ok) {
+    throw new Error(`تعذر تحميل ${filename}`);
+  }
 
   const text = await response.text();
-  const rows = parseCSV(text).filter(r => r.some(cell => String(cell).trim() !== ""));
-  if (!rows.length) throw new Error("Published sheet returned no rows");
+  const rows = parseCSV(text)
+    .filter(row => row.some(cell => String(cell).trim() !== ""));
 
-  const headers = rows[0].map(h => String(h).trim());
+  if (rows.length < 2) {
+    throw new Error(`ملف ${filename} فارغ أو غير صالح`);
+  }
+
+  const headers = rows[0].map(h =>
+    String(h).replace(/^\uFEFF/, "").trim()
+  );
+
   const data = {};
-
   headers.forEach((header, colIndex) => {
     if (!header) return;
+
     data[header] = rows
       .slice(1)
-      .map(r => String(r[colIndex] ?? "").trim())
+      .map(row => String(row[colIndex] ?? "").trim())
       .filter(Boolean);
   });
 
   return data;
 }
 
-function firstExistingColumn(data, names) {
+function getColumn(data, names) {
   for (const name of names) {
-    if (Array.isArray(data[name]) && data[name].length) return data[name];
+    if (Array.isArray(data[name]) && data[name].length) {
+      return data[name];
+    }
   }
   return null;
 }
 
-const SHEET_GID = "0";
+function showLoadError(error) {
+  console.error(error);
+  const status = document.getElementById("statusMessage");
+  if (status) {
+    status.textContent = "تعذر تحميل ملف البيانات";
+    status.title = error?.message || "";
+  }
+}
 
-const FALLBACK = {
-  topics: ["كيف تنضج ثمرة الرطب","دورة حياة قطعة ملابس","ماذا يحدث لنفاياتنا بعد رميها"],
-  audiences: ["طلاب جامعات","عائلات","زوار وسياح"],
-  goals: ["فهم تسلسل عملية أو رحلة","اكتشاف التغير عبر الزمن","استكشاف العلاقات بين أجزاء نظام"]
-};
+const DATA_FILE = "infographic.csv";
 
 const state = {
-  data: structuredClone(FALLBACK),
-  locked: { topics:false, audiences:false, goals:false },
-  current: { topics:"", audiences:"", goals:"" }
+  data: {
+    topics: [],
+    audiences: [],
+    goals: []
+  },
+  locked: {
+    topics: false,
+    audiences: false,
+    goals: false
+  },
+  current: {
+    topics: "",
+    audiences: "",
+    goals: ""
+  }
 };
 
 const $ = id => document.getElementById(id);
 
 function randomItem(list, previous) {
-  if (!list.length) return "";
+  if (!list || !list.length) return "";
   if (list.length === 1) return list[0];
+
   let next = list[Math.floor(Math.random() * list.length)];
-  while (next === previous) next = list[Math.floor(Math.random() * list.length)];
+  let guard = 0;
+
+  while (next === previous && guard < 20) {
+    next = list[Math.floor(Math.random() * list.length)];
+    guard++;
+  }
+
   return next;
 }
 
 function generate() {
   ["topics","audiences","goals"].forEach(key => {
-    if (!state.locked[key]) state.current[key] = randomItem(state.data[key], state.current[key]);
-    $(key + "Text").textContent = state.current[key];
+    if (!state.locked[key]) {
+      state.current[key] = randomItem(state.data[key], state.current[key]);
+    }
+    $(key + "Text").textContent = state.current[key] || "—";
   });
 }
 
@@ -104,26 +137,36 @@ function briefText() {
   return `صمّم إنفوجرافيك تفاعلي عن ${state.current.topics}. موجّه إلى ${state.current.audiences}. صمّم التجربة بحيث تساعد المستخدم على ${state.current.goals}.`;
 }
 
-async function loadSheetData() {
+async function loadData() {
+  $("statusMessage").textContent = "جاري تحميل البيانات…";
+
   try {
-    const sheet = await loadPublishedSheetByGid(SHEET_GID);
+    const data = await loadCSV(DATA_FILE);
 
     state.data.topics =
-      firstExistingColumn(sheet, ["Topic","Topics","الموضوع","الموضوعات"]) || FALLBACK.topics;
+      getColumn(data, ["Topic","Topics","الموضوع","الموضوعات"]);
 
     state.data.audiences =
-      firstExistingColumn(sheet, ["Audience","Audiences","الفئة المستهدفة","الفئات المستهدفة"]) || FALLBACK.audiences;
+      getColumn(data, ["Audience","Audiences","الفئة المستهدفة","الفئات المستهدفة"]);
 
     state.data.goals =
-      firstExistingColumn(sheet, ["Interaction Goal","InteractionGoal","Goals","هدف التفاعل","أهداف التفاعل"]) || FALLBACK.goals;
+      getColumn(data, ["Interaction Goal","InteractionGoal","Goals","هدف التفاعل","أهداف التفاعل"]);
 
-    console.log("Infographic lists loaded from Google Sheet.", {
-      topics: state.data.topics.length,
-      audiences: state.data.audiences.length,
-      goals: state.data.goals.length
+    const missing = Object.entries(state.data)
+      .filter(([_, list]) => !list || !list.length)
+      .map(([key]) => key);
+
+    if (missing.length) {
+      throw new Error("أعمدة مفقودة أو فارغة: " + missing.join(", "));
+    }
+
+    $("statusMessage").textContent = "";
+    generate();
+  } catch (error) {
+    showLoadError(error);
+    ["topics","audiences","goals"].forEach(key => {
+      $(key + "Text").textContent = "تعذر تحميل البيانات";
     });
-  } catch (err) {
-    console.warn("Could not load published infographic sheet. Using fallback lists.", err);
   }
 }
 
@@ -136,7 +179,13 @@ document.querySelectorAll(".lock-btn").forEach(btn => {
   });
 });
 
-$("generateBtn").addEventListener("click", generate);
+$("generateBtn").addEventListener("click", () => {
+  if (!state.data.topics.length) {
+    loadData();
+  } else {
+    generate();
+  }
+});
 
 $("copyBtn").addEventListener("click", () => {
   navigator.clipboard.writeText(briefText()).then(() => {
@@ -146,11 +195,9 @@ $("copyBtn").addEventListener("click", () => {
 });
 
 $("aboutBtn").addEventListener("click", () => $("aboutDialog").showModal());
-document.querySelectorAll("[data-close]").forEach(btn =>
-  btn.addEventListener("click", () => $(btn.dataset.close).close())
-);
 
-(async function init() {
-  await loadSheetData();
-  generate();
-})();
+document.querySelectorAll("[data-close]").forEach(btn => {
+  btn.addEventListener("click", () => $(btn.dataset.close).close());
+});
+
+loadData();

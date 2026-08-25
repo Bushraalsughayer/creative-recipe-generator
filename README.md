@@ -1,24 +1,29 @@
-# مولد الوصفات الإبداعية — Google Sheets FIXED
+# مولد الوصفات الإبداعية — CSV Edition
 
-هذه النسخة تقرأ من نسخة Google Sheet المنشورة على الويب مباشرة.
+هذه النسخة لا تعتمد على Google Sheets.
 
-Published deployment ID:
-2PACX-1vRE4XZA8gLvwCyqNfiQ7lzUUCBPbePxhDLTVs3IHcEZyw0xVIx3wV322Xv3JIr29pg3niBAK8RXDRbO
+## ملفات البيانات
 
-Tabs:
-- Zine gid: 1569150261
-- Interactive Infographic gid: 0
-
-## الأعمدة المطلوبة
-
-Zine:
+### zine.csv
+الأعمدة:
 Subject | Perspective | Art Style | Constraint
 
-Interactive Infographic:
+### infographic.csv
+الأعمدة:
 Topic | Audience | Interaction Goal
 
-## التحديث
-أضف/احذف/عدّل الصفوف في Google Sheet.
-ثم حدّث الموقع. الكود يضيف timestamp للطلب ويستخدم cache: no-store لتقليل مشاكل التخزين المؤقت.
+## كيف تعدلين المحتوى لاحقًا
 
-إذا تعذر تحميل الشيت، تظهر قوائم احتياطية قصيرة بدل تعطل الموقع.
+1. افتحي ملف CSV في Excel.
+2. أضيفي أو احذفي أو عدلي الصفوف.
+3. احفظي الملف بنفس الاسم.
+4. ارفعي الملف الجديد فقط إلى GitHub بدل الملف القديم.
+5. اعملي Commit changes.
+6. حدّثي الموقع.
+
+لا تحتاجين تعديل أي ملف JavaScript.
+
+## مهم عند الحفظ من Excel
+اختاري CSV UTF-8 إن ظهر لك أكثر من نوع CSV، حتى تبقى العربية سليمة.
+
+الموقع يضيف timestamp عند قراءة CSV ويستخدم cache:no-store لتقليل مشكلة الكاش.
