@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>وسيلة تعليمية تفاعلية — مولد الوصفات الإبداعية</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,7 +27,6 @@
           <button id="aboutBtn" class="plain-link">كيف يعمل؟</button>
         </div>
       </div>
-
       <div class="inner-tabs-row">
         <nav class="project-tabs" aria-label="التنقل بين المشاريع">
           <a href="zine.html" class="project-tab ">كتيب / Zine</a>
@@ -42,7 +44,7 @@
             <span class="card-label">٠١ / الموضوع</span>
             <button class="lock-btn" data-key="topics">○ تثبيت</button>
           </div>
-          <div class="card-copy">صمّم إنفوجرافيك تفاعلي عن <strong id="topicsText">...</strong>.</div>
+          <div class="card-copy">صمّم إنفوجرافيك تفاعلي عن <strong id="topicsText">جارٍ التحميل...</strong>.</div>
         </article>
 
         <article class="idea-card perspective-card">
@@ -50,7 +52,7 @@
             <span class="card-label">٠٢ / الفئة المستهدفة</span>
             <button class="lock-btn" data-key="audiences">○ تثبيت</button>
           </div>
-          <div class="card-copy">موجّه إلى <strong id="audiencesText">...</strong>.</div>
+          <div class="card-copy">موجّه إلى <strong id="audiencesText">جارٍ التحميل...</strong>.</div>
         </article>
 
         <article class="idea-card method-card">
@@ -58,12 +60,12 @@
             <span class="card-label">٠٣ / هدف التفاعل</span>
             <button class="lock-btn" data-key="goals">○ تثبيت</button>
           </div>
-          <div class="card-copy">صمّم التجربة بحيث تساعد المستخدم على <strong id="goalsText">...</strong>.</div>
+          <div class="card-copy">صمّم التجربة بحيث تساعد المستخدم على <strong id="goalsText">جارٍ التحميل...</strong>.</div>
         </article>
 
         <div class="generator-actions">
-          <button id="generateBtn" class="primary-btn">ولّد فكرة أخرى</button>
-          <button id="copyBtn" class="secondary-btn">نسخ الوصفة</button>
+          <button id="generateBtn" class="primary-btn" disabled>ولّد فكرة أخرى</button>
+          <button id="copyBtn" class="secondary-btn" disabled>نسخ الوصفة</button>
           <span id="statusMessage" class="status-message"></span>
         </div>
       </section>
@@ -82,6 +84,7 @@
       <p>الوصفة تحدد الموضوع والفئة المستهدفة وهدف التفاعل، أما طريقة التفاعل والأسلوب البصري فهما من قراراتك التصميمية.</p>
     </div>
   </dialog>
+
   <script src="infographic.js"></script>
 </body>
 </html>

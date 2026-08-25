@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>كتيب / Zine — مولد الوصفات الإبداعية</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,7 +27,6 @@
           <button id="aboutBtn" class="plain-link">كيف يعمل؟</button>
         </div>
       </div>
-
       <div class="inner-tabs-row">
         <nav class="project-tabs" aria-label="التنقل بين المشاريع">
           <a href="zine.html" class="project-tab active">كتيب / Zine</a>
@@ -42,7 +44,7 @@
             <span class="card-label">٠١ / الموضوع</span>
             <button class="lock-btn" data-key="subjects">○ تثبيت</button>
           </div>
-          <div class="card-copy">صمّم مطبوعة عن <strong id="subjectsText">...</strong>.</div>
+          <div class="card-copy">صمّم مطبوعة عن <strong id="subjectsText">جارٍ التحميل...</strong>.</div>
         </article>
 
         <article class="idea-card perspective-card">
@@ -50,7 +52,7 @@
             <span class="card-label">٠٢ / وجهة النظر</span>
             <button class="lock-btn" data-key="perspectives">○ تثبيت</button>
           </div>
-          <div class="card-copy">اعرض الموضوع من وجهة نظر <strong id="perspectivesText">...</strong>.</div>
+          <div class="card-copy">اعرض الموضوع من وجهة نظر <strong id="perspectivesText">جارٍ التحميل...</strong>.</div>
         </article>
 
         <article class="idea-card method-card">
@@ -58,7 +60,7 @@
             <span class="card-label">٠٣ / الأسلوب الفني</span>
             <button class="lock-btn" data-key="methods">○ تثبيت</button>
           </div>
-          <div class="card-copy">استكشف الفكرة باستخدام <strong id="methodsText">...</strong>.</div>
+          <div class="card-copy">استكشف الفكرة باستخدام <strong id="methodsText">جارٍ التحميل...</strong>.</div>
         </article>
 
         <article class="idea-card constraint-card">
@@ -66,12 +68,12 @@
             <span class="card-label">٠٤ / القيد الإبداعي</span>
             <button class="lock-btn" data-key="constraints">○ تثبيت</button>
           </div>
-          <div class="card-copy">بشرط أن <strong id="constraintsText">...</strong>.</div>
+          <div class="card-copy">بشرط أن <strong id="constraintsText">جارٍ التحميل...</strong>.</div>
         </article>
 
         <div class="generator-actions">
-          <button id="generateBtn" class="primary-btn">ولّد فكرة أخرى</button>
-          <button id="copyBtn" class="secondary-btn">نسخ الوصفة</button>
+          <button id="generateBtn" class="primary-btn" disabled>ولّد فكرة أخرى</button>
+          <button id="copyBtn" class="secondary-btn" disabled>نسخ الوصفة</button>
           <span id="statusMessage" class="status-message"></span>
         </div>
       </section>
@@ -87,9 +89,9 @@
     </div>
     <div class="modal-body">
       <p>ولّد نقطة بداية لفكرة مطبوعتك، ثم ثبّت أي جزء يعجبك وأعد توليد البقية.</p>
-      <p>المولد يعطيك بداية فقط؛ ويبقى عليك البحث وتطوير الفكرة واتخاذ القرارات التصميمية.</p>
     </div>
   </dialog>
+
   <script src="zine.js"></script>
 </body>
 </html>

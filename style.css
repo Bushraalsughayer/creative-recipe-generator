@@ -23,7 +23,8 @@ body {
   font-family: var(--main);
 }
 
-button, input, textarea { font: inherit; }
+button, input { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
 
 .noise {
   position: fixed;
@@ -44,7 +45,6 @@ button, input, textarea { font: inherit; }
   background: transparent;
   color: inherit;
   padding: 0 0 2px;
-  font-family: var(--main);
   font-size: 16px;
   font-weight: 300;
   line-height: 1.2;
@@ -52,7 +52,7 @@ button, input, textarea { font: inherit; }
   text-decoration: none;
 }
 
-/* LANDING */
+/* Landing page */
 .landing-page { overflow: hidden; }
 
 .landing-shell {
@@ -102,11 +102,11 @@ button, input, textarea { font: inherit; }
   min-height: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  border: 0;
   direction: rtl;
 }
 
 .landing-project {
+  position: relative;
   min-width: 0;
   color: var(--ink);
   text-decoration: none;
@@ -114,7 +114,6 @@ button, input, textarea { font: inherit; }
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border: 0;
 }
 
 .zine-choice { background: var(--lime); }
@@ -147,7 +146,7 @@ button, input, textarea { font: inherit; }
 
 .landing-footer { min-height: 25px; }
 
-/* INNER */
+/* Inner pages */
 .inner-page { overflow: hidden; }
 
 .screen {
@@ -181,6 +180,7 @@ button, input, textarea { font: inherit; }
   color: inherit;
   text-decoration: none;
 }
+
 .breadcrumbs a:hover { text-decoration: underline; }
 
 .inner-utilities {
@@ -212,7 +212,6 @@ button, input, textarea { font: inherit; }
   font-size: 14px;
   line-height: 1.2;
   font-weight: 300;
-  background: transparent;
 }
 
 .project-tab.active {
@@ -249,6 +248,7 @@ button, input, textarea { font: inherit; }
   display: grid;
   grid-template-rows: auto 1fr;
 }
+
 .idea-card:last-of-type { border-bottom: 2px solid var(--ink); }
 
 .subject-card { background: var(--lime); }
@@ -280,6 +280,7 @@ button, input, textarea { font: inherit; }
   font-weight: 300;
   cursor: pointer;
 }
+
 .lock-btn.locked {
   background: var(--ink);
   color: var(--paper);
@@ -294,6 +295,7 @@ button, input, textarea { font: inherit; }
   letter-spacing: -.025em;
   font-weight: 300;
 }
+
 .card-copy strong { font-weight: 700; }
 
 .generator-actions {
@@ -316,6 +318,7 @@ button, input, textarea { font: inherit; }
   font-weight: 300;
   cursor: pointer;
 }
+
 .primary-btn { background: var(--ink); color: var(--paper); }
 .secondary-btn { background: transparent; color: var(--ink); }
 
@@ -325,16 +328,22 @@ button, input, textarea { font: inherit; }
   font-size: 11px;
 }
 
+.error-message {
+  color: #8c0000;
+  font-weight: 500;
+}
+
 .info-page .generator {
   grid-template-rows: 26px repeat(3, minmax(0, 1fr)) 51px;
 }
+
 .zine-page .generator {
   grid-template-rows: 26px repeat(4, minmax(0, 1fr)) 51px;
 }
 
 .unified-footer { height: 27px; }
 
-/* DIALOGS */
+/* Dialog */
 .modal {
   width: min(760px, calc(100% - 28px));
   max-height: 86vh;
@@ -344,10 +353,12 @@ button, input, textarea { font: inherit; }
   color: var(--ink);
   box-shadow: -9px 9px 0 var(--ink);
 }
+
 .modal::backdrop {
   background: rgba(0,0,0,.30);
   backdrop-filter: blur(2px);
 }
+
 .modal-head {
   display: flex;
   justify-content: space-between;
@@ -356,12 +367,14 @@ button, input, textarea { font: inherit; }
   padding: 18px 20px;
   border-bottom: 2px solid var(--ink);
 }
+
 .modal h2 {
   margin: 0;
   font-size: clamp(28px, 3.5vw, 44px);
   line-height: 1.15;
   font-weight: 500;
 }
+
 .close-btn {
   border: 0;
   background: transparent;
@@ -369,6 +382,7 @@ button, input, textarea { font: inherit; }
   font-size: 28px;
   cursor: pointer;
 }
+
 .modal-body {
   padding: 18px 20px 24px;
   font-size: 14px;
@@ -393,13 +407,19 @@ button, input, textarea { font: inherit; }
     padding: 20px 18px 0;
     grid-template-rows: 34px auto 26px;
   }
+
   .landing-main { display: block; }
   .landing-intro { padding: 54px 0 38px; }
   .landing-intro h1 { font-size: 58px; }
   .landing-intro p { font-size: 20px; }
 
   .landing-projects { grid-template-columns: 1fr; }
-  .landing-project { min-height: 280px; padding: 30px 26px; }
+
+  .landing-project {
+    min-height: 280px;
+    padding: 30px 26px;
+  }
+
   .landing-project-name strong { font-size: 44px; }
 
   .screen {
@@ -408,6 +428,7 @@ button, input, textarea { font: inherit; }
     display: block;
     overflow: visible;
   }
+
   .inner-header { padding: 18px 18px 0; }
   .inner-topline { gap: 14px; }
   .breadcrumbs { font-size: 13px; }
@@ -419,17 +440,22 @@ button, input, textarea { font: inherit; }
     align-items: center;
     padding-bottom: 8px;
   }
+
   .project-tabs { width: 100%; }
+
   .project-tab {
     flex: 1;
     text-align: center;
     font-size: 12px;
   }
+
   .inner-main { padding: 0 18px 16px; }
+
   .generator, .info-page .generator, .zine-page .generator {
     height: auto;
     display: block;
   }
+
   .generator > .brief-label { margin: 12px 0 9px; }
   .idea-card { min-height: 155px; }
   .card-copy { font-size: 27px; }

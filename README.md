@@ -1,11 +1,31 @@
-# مولد الوصفات الإبداعية — النسخة البسيطة
+# مولد الوصفات الإبداعية — Source Google Sheet Only
 
-كل القوائم موجودة مباشرة داخل:
-- zine.js
-- infographic.js
+Google Sheet:
+https://docs.google.com/spreadsheets/d/16iOSnylKxHB5XmvjWpdazfsKNHPrkfU-vc7lQIfhyuI/edit
 
-لا يوجد Google Sheets أو CSV أو أي ربط خارجي.
+## قاعدة البيانات في هذه النسخة
 
-لإضافة عناصر:
-- zine.js: subjects / perspectives / methods / constraints
-- infographic.js: topics / audiences / goals
+do not cache the list, and do not read the list from any cache. Always read from the source Google Sheet
+
+تم تطبيقها فعليًا في دالة `loadGoogleSheetTab()`:
+
+- لا توجد قوائم احتياطية.
+- لا يوجد localStorage للقوائم.
+- لا يوجد sessionStorage للقوائم.
+- لا يوجد IndexedDB للقوائم.
+- كل تحميل للصفحة يرسل طلبًا جديدًا وفريدًا إلى Google Sheet.
+- إذا فشل Google Sheet لا يولّد الموقع من أي بيانات قديمة.
+
+## أسماء التبويبات المتوقعة
+
+Zine
+
+Interactive Infographic
+
+## عناوين الأعمدة
+
+Zine:
+Subject | Perspective | Art Style | Constraint
+
+Interactive Infographic:
+Topic | Audience | Interaction Goal
