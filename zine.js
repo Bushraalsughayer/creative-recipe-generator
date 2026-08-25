@@ -6,13 +6,8 @@ const SHEET_ID = "16iOSnylKxHB5XmvjWpdazfsKNHPrkfU-vc7lQIfhyuI";
  * do not cache the list, and do not read the list from any cache.
  * Always read from the source Google Sheet.
  *
- * Implementation:
- * - no localStorage
- * - no sessionStorage
- * - no IndexedDB
- * - no fallback lists
- * - every request gets a unique cache-buster
- * - data is read directly from the Google Sheet by gid
+ * No localStorage / sessionStorage / IndexedDB / fallback lists.
+ * A unique cache-buster is added to every request.
  */
 function loadGoogleSheetByGid(gid) {
   return new Promise((resolve, reject) => {
@@ -34,20 +29,14 @@ function loadGoogleSheetByGid(gid) {
           throw new Error("Google Sheet returned an invalid response");
         }
 
-        const headers = response.table.cols.map(col => (col.label || "").trim());
+        // IMPORTANT:
+        // We ignore column names completely.
+        // Only the fixed column order matters.
         const rows = response.table.rows.map(row =>
           row.c.map(cell => cell && cell.v != null ? String(cell.v).trim() : "")
         );
 
-        const data = {};
-        headers.forEach((header, colIndex) => {
-          if (!header) return;
-          data[header] = rows
-            .map(row => row[colIndex] || "")
-            .filter(Boolean);
-        });
-
-        finish(null, data);
+        finish(null, rows);
       } catch (error) {
         finish(error);
       }
@@ -55,8 +44,6 @@ function loadGoogleSheetByGid(gid) {
 
     const tqx = `out:json;responseHandler:${callbackName}`;
 
-    // Important: gid is used instead of the tab name.
-    // Unique _source_refresh forces a fresh request every page load.
     script.src =
       `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?` +
       `gid=${encodeURIComponent(gid)}` +
@@ -69,18 +56,21 @@ function loadGoogleSheetByGid(gid) {
   });
 }
 
-function getRequiredColumn(data, possibleHeaders, readableName) {
-  for (const header of possibleHeaders) {
-    if (Array.isArray(data[header]) && data[header].length > 0) {
-      return data[header];
-    }
+function getColumnByIndex(rows, index, readableName) {
+  const values = rows
+    .map(row => row[index] || "")
+    .filter(Boolean);
+
+  if (!values.length) {
+    throw new Error(`Column ${readableName} is empty or missing`);
   }
-  throw new Error(`Missing or empty Google Sheet column: ${readableName}`);
+
+  return values;
 }
 
 function randomItem(list, previous) {
   if (!Array.isArray(list) || list.length === 0) {
-    throw new Error("Cannot generate from an empty source list");
+    throw new Error("Cannot generate from an empty list");
   }
   if (list.length === 1) return list[0];
 
@@ -103,6 +93,7 @@ const $ = id => document.getElementById(id);
 
 function generate() {
   if (!state.data) return;
+
   ["subjects","perspectives","methods","constraints"].forEach(key => {
     if (!state.locked[key]) {
       state.current[key] = randomItem(state.data[key], state.current[key]);
@@ -146,29 +137,18 @@ document.querySelectorAll("[data-close]").forEach(btn => {
 
 (async function initFromSourceOnly() {
   try {
-    const sheet = await loadGoogleSheetByGid(ZINE_GID);
+    const rows = await loadGoogleSheetByGid(ZINE_GID);
 
+    // Fixed column order:
+    // A = Subject
+    // B = Perspective
+    // C = Art Style
+    // D = Constraint
     state.data = {
-      subjects: getRequiredColumn(
-        sheet,
-        ["Subject","Subjects","الموضوع","الموضوعات"],
-        "Subject"
-      ),
-      perspectives: getRequiredColumn(
-        sheet,
-        ["Perspective","Perspectives","وجهة النظر","وجهات النظر"],
-        "Perspective"
-      ),
-      methods: getRequiredColumn(
-        sheet,
-        ["Art Style","ArtStyle","Method","Methods","الأسلوب الفني","الأساليب الفنية"],
-        "Art Style"
-      ),
-      constraints: getRequiredColumn(
-        sheet,
-        ["Constraint","Constraints","القيد الإبداعي","القيود الإبداعية"],
-        "Constraint"
-      )
+      subjects: getColumnByIndex(rows, 0, "A / Subject"),
+      perspectives: getColumnByIndex(rows, 1, "B / Perspective"),
+      methods: getColumnByIndex(rows, 2, "C / Art Style"),
+      constraints: getColumnByIndex(rows, 3, "D / Constraint")
     };
 
     $("generateBtn").disabled = false;
@@ -176,9 +156,9 @@ document.querySelectorAll("[data-close]").forEach(btn => {
     generate();
 
   } catch (error) {
-    console.error("Zine sheet loading error:", error);
+    console.error("Zine loading error:", error);
     $("statusMessage").classList.add("error-message");
     $("statusMessage").textContent =
-      "تعذر تحميل قوائم الكتيب من Google Sheet. تحقق من عناوين الأعمدة ثم حدّث الصفحة.";
+      "تعذر تحميل قوائم الكتيب من Google Sheet. تأكد أن مشاركة الشيت مضبوطة على Anyone with the link ثم حدّث الصفحة.";
   }
 })();

@@ -1,17 +1,15 @@
-# مولد الوصفات الإبداعية — Google Sheet by GID
+# Google Sheets Position-Based Version
 
-تم تعديل الربط ليستخدم gid مباشرة بدل أسماء التبويبات.
+This version:
+- does not use column names at all
+- reads Zine by gid 1569150261
+- reads Interactive Infographic by gid 0
+- uses fixed column positions only
+- does not use fallback lists
+- does not use localStorage
+- does not cache lists
 
-Zine gid:
-1569150261
+Required Google Sheet sharing:
+Share → General access → Anyone with the link → Viewer
 
-Interactive Infographic gid:
-0
-
-Google Sheet ID:
-16iOSnylKxHB5XmvjWpdazfsKNHPrkfU-vc7lQIfhyuI
-
-قاعدة البيانات:
-do not cache the list, and do not read the list from any cache. Always read from the source Google Sheet
-
-لا توجد قوائم احتياطية ولا localStorage.
+Publishing to the web can remain enabled, but this version relies on the public gviz endpoint.
