@@ -1,53 +1,65 @@
 
-const SHEET_ID = "16iOSnylKxHB5XmvjWpdazfsKNHPrkfU-vc7lQIfhyuI";
+const PUBLISHED_ID = "2PACX-1vRE4XZA8gLvwCyqNfiQ7lzUUCBPbePxhDLTVs3IHcEZyw0xVIx3wV322Xv3JIr29pg3niBAK8RXDRbO";
 
-/*
-  Reads a Google Sheet tab using Google Visualization's JSONP response.
-  This avoids browser CORS issues on a static GitHub Pages site.
-*/
-function loadGoogleSheetTab(sheetName) {
-  return new Promise((resolve, reject) => {
-    const callbackName = "__sheetCallback_" + Math.random().toString(36).slice(2);
-    const script = document.createElement("script");
-    const timer = setTimeout(() => cleanup(new Error("Sheet loading timed out")), 8000);
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = "", inQuotes = false;
 
-    function cleanup(error, value) {
-      clearTimeout(timer);
-      delete window[callbackName];
-      script.remove();
-      error ? reject(error) : resolve(value);
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    const next = text[i + 1];
+
+    if (ch === '"' && inQuotes && next === '"') {
+      field += '"';
+      i++;
+    } else if (ch === '"') {
+      inQuotes = !inQuotes;
+    } else if (ch === ',' && !inQuotes) {
+      row.push(field);
+      field = "";
+    } else if ((ch === "\n" || ch === "\r") && !inQuotes) {
+      if (ch === "\r" && next === "\n") i++;
+      row.push(field);
+      rows.push(row);
+      row = [];
+      field = "";
+    } else {
+      field += ch;
     }
+  }
 
-    window[callbackName] = response => {
-      try {
-        if (!response || response.status !== "ok") {
-          throw new Error("Google Sheet response was not OK");
-        }
+  if (field.length || row.length) {
+    row.push(field);
+    rows.push(row);
+  }
 
-        const cols = response.table.cols.map(c => (c.label || "").trim());
-        const rows = response.table.rows.map(row =>
-          row.c.map(cell => cell && cell.v != null ? String(cell.v).trim() : "")
-        );
+  return rows;
+}
 
-        const data = {};
-        cols.forEach((header, colIndex) => {
-          if (!header) return;
-          data[header] = rows.map(r => r[colIndex] || "").filter(Boolean);
-        });
-        cleanup(null, data);
-      } catch (err) {
-        cleanup(err);
-      }
-    };
+async function loadPublishedSheetByGid(gid) {
+  const url =
+    `https://docs.google.com/spreadsheets/d/e/${PUBLISHED_ID}/pub` +
+    `?gid=${encodeURIComponent(gid)}&single=true&output=csv&_=${Date.now()}`;
 
-    const tqx = `out:json;responseHandler:${callbackName}`;
-    script.src =
-      `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?` +
-      `sheet=${encodeURIComponent(sheetName)}&tqx=${encodeURIComponent(tqx)}`;
+  const response = await fetch(url, { cache: "no-store" });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-    script.onerror = () => cleanup(new Error("Could not load Google Sheet"));
-    document.head.appendChild(script);
+  const text = await response.text();
+  const rows = parseCSV(text).filter(r => r.some(cell => String(cell).trim() !== ""));
+  if (!rows.length) throw new Error("Published sheet returned no rows");
+
+  const headers = rows[0].map(h => String(h).trim());
+  const data = {};
+
+  headers.forEach((header, colIndex) => {
+    if (!header) return;
+    data[header] = rows
+      .slice(1)
+      .map(r => String(r[colIndex] ?? "").trim())
+      .filter(Boolean);
   });
+
+  return data;
 }
 
 function firstExistingColumn(data, names) {
@@ -57,35 +69,12 @@ function firstExistingColumn(data, names) {
   return null;
 }
 
+const SHEET_GID = "0";
+
 const FALLBACK = {
-  topics: [
-    "كيف تتغير مدينة واحدة خلال 24 ساعة","رحلة حبة القهوة من المزرعة إلى الكوب",
-    "ماذا يحدث لنفاياتنا بعد رميها","دورة حياة قطعة ملابس","كيف يستخدم الناس هواتفهم خلال اليوم",
-    "كم تستهلك أنشطتنا اليومية من الماء دون أن نشعر","رحلة طرد من الطلب حتى الوصول",
-    "كيف تنضج ثمرة الرطب","كيف تتغير الظلال في المكان خلال اليوم",
-    "ماذا يحدث في المطار خلال ساعة واحدة","أين يذهب وقتنا في يوم عادي",
-    "كيف ينتقل خبر أو ترند عبر الإنترنت","ماذا يحدث خلف الكواليس عندما نضغط إرسال",
-    "حياة منتج قبل أن يصل إلى رف المتجر","كيف تتغير الأشياء التي نحملها معنا مع العمر",
-    "كيف يتغير استخدام مكان واحد بين الصباح والمساء","كيف تنتقل المياه من المصدر إلى المنزل",
-    "كيف تتغير عادات الطعام بين الأجيال","كيف تتحرك الحشود داخل فعالية كبيرة",
-    "ماذا يحدث للطعام الذي لا نأكله"
-  ],
-  audiences: [
-    "أطفال من 7 إلى 10 سنوات","أطفال من 11 إلى 13 سنة","مراهقين من 14 إلى 18 سنة",
-    "طلاب جامعات","شباب من 20 إلى 30 سنة","بالغين غير متخصصين","كبار السن","عائلات",
-    "زوار وسياح","جمهور عام لديه معرفة محدودة بالموضوع",
-    "أشخاص مهتمين بالموضوع لكنهم غير متخصصين",
-    "أشخاص يعرفون أساسيات الموضوع ويريدون التعمق",
-    "متخصصين أو ممارسين في المجال"
-  ],
-  goals: [
-    "مقارنة معلومات مختلفة","اكتشاف التغير عبر الزمن","فهم تسلسل عملية أو رحلة",
-    "استكشاف العلاقات بين أجزاء نظام","الانتقال من الصورة العامة إلى التفاصيل",
-    "اكتشاف أنماط أو فروق مخفية","رؤية أثر تغيير عامل واحد على النتيجة",
-    "العثور على المعلومة الأكثر ارتباطًا به","استكشاف المعلومات حسب المكان",
-    "فهم العلاقة بين السبب والنتيجة","تكوين فهم تدريجي لموضوع معقد",
-    "اختبار توقعاته ثم مقارنتها بالبيانات"
-  ]
+  topics: ["كيف تنضج ثمرة الرطب","دورة حياة قطعة ملابس","ماذا يحدث لنفاياتنا بعد رميها"],
+  audiences: ["طلاب جامعات","عائلات","زوار وسياح"],
+  goals: ["فهم تسلسل عملية أو رحلة","اكتشاف التغير عبر الزمن","استكشاف العلاقات بين أجزاء نظام"]
 };
 
 const state = {
@@ -117,7 +106,7 @@ function briefText() {
 
 async function loadSheetData() {
   try {
-    const sheet = await loadGoogleSheetTab("Interactive Infographic");
+    const sheet = await loadPublishedSheetByGid(SHEET_GID);
 
     state.data.topics =
       firstExistingColumn(sheet, ["Topic","Topics","الموضوع","الموضوعات"]) || FALLBACK.topics;
@@ -126,9 +115,15 @@ async function loadSheetData() {
       firstExistingColumn(sheet, ["Audience","Audiences","الفئة المستهدفة","الفئات المستهدفة"]) || FALLBACK.audiences;
 
     state.data.goals =
-      firstExistingColumn(sheet, ["Interaction Goal","Interaction Goal ","InteractionGoal","Goals","هدف التفاعل","أهداف التفاعل"]) || FALLBACK.goals;
+      firstExistingColumn(sheet, ["Interaction Goal","InteractionGoal","Goals","هدف التفاعل","أهداف التفاعل"]) || FALLBACK.goals;
+
+    console.log("Infographic lists loaded from Google Sheet.", {
+      topics: state.data.topics.length,
+      audiences: state.data.audiences.length,
+      goals: state.data.goals.length
+    });
   } catch (err) {
-    console.warn("Using built-in infographic lists because Google Sheet could not be loaded.", err);
+    console.warn("Could not load published infographic sheet. Using fallback lists.", err);
   }
 }
 

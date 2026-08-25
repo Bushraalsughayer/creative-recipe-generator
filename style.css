@@ -24,7 +24,6 @@ body {
 }
 
 button, input, textarea { font: inherit; }
-button, a { -webkit-tap-highlight-color: transparent; }
 
 .noise {
   position: fixed;
@@ -67,7 +66,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   height: 34px;
   border-bottom: 3px solid var(--ink);
   display: flex;
-  justify-content: flex-start; /* far left */
+  justify-content: flex-start;
   align-items: flex-start;
   direction: ltr;
 }
@@ -86,7 +85,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 .landing-intro h1 {
   margin: 0;
-  font-family: var(--main);
   font-size: clamp(68px, 7.2vw, 118px);
   line-height: .97;
   letter-spacing: -.055em;
@@ -109,7 +107,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 
 .landing-project {
-  position: relative;
   min-width: 0;
   color: var(--ink);
   text-decoration: none;
@@ -148,9 +145,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   text-align: right;
 }
 
-.landing-footer {
-  min-height: 25px;
-}
+.landing-footer { min-height: 25px; }
 
 /* INNER */
 .inner-page { overflow: hidden; }
@@ -337,9 +332,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   grid-template-rows: 26px repeat(4, minmax(0, 1fr)) 51px;
 }
 
-.unified-footer {
-  height: 27px;
-}
+.unified-footer { height: 27px; }
 
 /* DIALOGS */
 .modal {
@@ -406,10 +399,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .landing-intro p { font-size: 20px; }
 
   .landing-projects { grid-template-columns: 1fr; }
-  .landing-project {
-    min-height: 280px;
-    padding: 30px 26px;
-  }
+  .landing-project { min-height: 280px; padding: 30px 26px; }
   .landing-project-name strong { font-size: 44px; }
 
   .screen {

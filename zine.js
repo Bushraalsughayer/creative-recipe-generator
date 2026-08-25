@@ -1,53 +1,65 @@
 
-const SHEET_ID = "16iOSnylKxHB5XmvjWpdazfsKNHPrkfU-vc7lQIfhyuI";
+const PUBLISHED_ID = "2PACX-1vRE4XZA8gLvwCyqNfiQ7lzUUCBPbePxhDLTVs3IHcEZyw0xVIx3wV322Xv3JIr29pg3niBAK8RXDRbO";
 
-/*
-  Reads a Google Sheet tab using Google Visualization's JSONP response.
-  This avoids browser CORS issues on a static GitHub Pages site.
-*/
-function loadGoogleSheetTab(sheetName) {
-  return new Promise((resolve, reject) => {
-    const callbackName = "__sheetCallback_" + Math.random().toString(36).slice(2);
-    const script = document.createElement("script");
-    const timer = setTimeout(() => cleanup(new Error("Sheet loading timed out")), 8000);
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = "", inQuotes = false;
 
-    function cleanup(error, value) {
-      clearTimeout(timer);
-      delete window[callbackName];
-      script.remove();
-      error ? reject(error) : resolve(value);
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    const next = text[i + 1];
+
+    if (ch === '"' && inQuotes && next === '"') {
+      field += '"';
+      i++;
+    } else if (ch === '"') {
+      inQuotes = !inQuotes;
+    } else if (ch === ',' && !inQuotes) {
+      row.push(field);
+      field = "";
+    } else if ((ch === "\n" || ch === "\r") && !inQuotes) {
+      if (ch === "\r" && next === "\n") i++;
+      row.push(field);
+      rows.push(row);
+      row = [];
+      field = "";
+    } else {
+      field += ch;
     }
+  }
 
-    window[callbackName] = response => {
-      try {
-        if (!response || response.status !== "ok") {
-          throw new Error("Google Sheet response was not OK");
-        }
+  if (field.length || row.length) {
+    row.push(field);
+    rows.push(row);
+  }
 
-        const cols = response.table.cols.map(c => (c.label || "").trim());
-        const rows = response.table.rows.map(row =>
-          row.c.map(cell => cell && cell.v != null ? String(cell.v).trim() : "")
-        );
+  return rows;
+}
 
-        const data = {};
-        cols.forEach((header, colIndex) => {
-          if (!header) return;
-          data[header] = rows.map(r => r[colIndex] || "").filter(Boolean);
-        });
-        cleanup(null, data);
-      } catch (err) {
-        cleanup(err);
-      }
-    };
+async function loadPublishedSheetByGid(gid) {
+  const url =
+    `https://docs.google.com/spreadsheets/d/e/${PUBLISHED_ID}/pub` +
+    `?gid=${encodeURIComponent(gid)}&single=true&output=csv&_=${Date.now()}`;
 
-    const tqx = `out:json;responseHandler:${callbackName}`;
-    script.src =
-      `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?` +
-      `sheet=${encodeURIComponent(sheetName)}&tqx=${encodeURIComponent(tqx)}`;
+  const response = await fetch(url, { cache: "no-store" });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-    script.onerror = () => cleanup(new Error("Could not load Google Sheet"));
-    document.head.appendChild(script);
+  const text = await response.text();
+  const rows = parseCSV(text).filter(r => r.some(cell => String(cell).trim() !== ""));
+  if (!rows.length) throw new Error("Published sheet returned no rows");
+
+  const headers = rows[0].map(h => String(h).trim());
+  const data = {};
+
+  headers.forEach((header, colIndex) => {
+    if (!header) return;
+    data[header] = rows
+      .slice(1)
+      .map(r => String(r[colIndex] ?? "").trim())
+      .filter(Boolean);
   });
+
+  return data;
 }
 
 function firstExistingColumn(data, names) {
@@ -57,40 +69,13 @@ function firstExistingColumn(data, names) {
   return null;
 }
 
+const SHEET_GID = "1569150261";
+
 const FALLBACK = {
-  subjects: [
-    "الأشياء التي يحتفظ بها الناس لقيمتها العاطفية","الانتظار","الطقوس الصغيرة التي نكررها كل يوم",
-    "الأشياء التي تختفي من حياتنا تدريجيًا","الأشياء التي نجمعها دون أن نخطط لذلك",
-    "الآثار التي يتركها الناس خلفهم","الطعام بوصفه ذاكرة","الجانب الهادئ من مكان مزدحم",
-    "الأشياء التي نصلحها بدل أن نستبدلها","أشياء عادية تحمل قصصًا غير عادية",
-    "عادات محلية لا يلاحظها الزائر بسهولة","ما يحمله الناس في حقائبهم",
-    "اللغة البصرية لحيّ أو شارع","أشياء لا تحدث إلا ليلًا",
-    "الطرق التي نعبّر بها عن مرور الوقت","مكان يتغير على مدار اليوم"
-  ],
-  perspectives: [
-    "طفل","سائح يزور المكان لأول مرة","أمين أرشيف من المستقبل","شخص يتأخر دائمًا",
-    "جامع مهووس بالتفاصيل","غرض جامد يراقب البشر","شخص يرى الموضوع للمرة الأولى",
-    "شخص يعرف المكان عن ظهر قلب","باحث يوثّق التفاصيل","راوٍ لا يمكن الوثوق به تمامًا",
-    "شخص من جيل مختلف","شخص يلاحظ التفاصيل التي يتجاهلها الجميع"
-  ],
-  methods: [
-    "الكولاج والصور المقتبسة","فن السكانر مع الخط اليدوي",
-    "التصوير الفوتوغرافي مع تايبوجرافي تحريري جريء","الرسم والعلامات التخطيطية",
-    "التايبوجرافي فقط","الخامات الموجودة والملامس الحقيقية","التصوير بالأبيض والأسود",
-    "صور مولّدة بالذكاء الاصطناعي ممزوجة بعناصر يدوية",
-    "ملامس التصوير الضوئي والقصاصات الخشنة",
-    "شبكة تصميم منضبطة مع عنصر واحد يكسر النظام","التكرار والتسلسل البصري",
-    "التصوير المقرّب والقصّات الحادة"
-  ],
-  constraints: [
-    "لا تُظهر أي وجه بشري","تستخدم لونين فقط","تكرر عنصرًا بصريًا واحدًا في كامل المطبوعة",
-    "تضيف طيّة أو قصّة أو تدخّلًا ماديًا واحدًا على الأقل","لا تستخدم أكثر من خطّين",
-    "تجعل إحدى الصفحات المزدوجة تعمل بلا أي كلمات","تعرض العناصر بمقياس غير معتاد",
-    "تدرج نصًا مقتبسًا من مصدر موجود مسبقًا",
-    "تستخدم الصورة نفسها أكثر من مرة ولكن بطريقة مختلفة كل مرة",
-    "تجعل إحدى الصفحات المزدوجة كثيفة جدًا وأخرى شديدة الفراغ",
-    "تضيف صفحة واحدة تتطلب تفاعل القارئ","تبني النظام البصري حول شكل هندسي واحد"
-  ]
+  subjects: ["الانتظار","الطعام بوصفه ذاكرة","مكان يتغير على مدار اليوم"],
+  perspectives: ["طفل","سائح يزور المكان لأول مرة","أمين أرشيف من المستقبل"],
+  methods: ["الكولاج والصور المقتبسة","فن السكانر مع الخط اليدوي","التصوير الفوتوغرافي"],
+  constraints: ["تستخدم لونين فقط","تكرر عنصرًا بصريًا واحدًا","لا تستخدم أكثر من خطّين"]
 };
 
 const state = {
@@ -127,7 +112,7 @@ function briefText() {
 
 async function loadSheetData() {
   try {
-    const sheet = await loadGoogleSheetTab("Zine");
+    const sheet = await loadPublishedSheetByGid(SHEET_GID);
 
     state.data.subjects =
       firstExistingColumn(sheet, ["Subject","Subjects","الموضوع","الموضوعات"]) || FALLBACK.subjects;
@@ -140,8 +125,15 @@ async function loadSheetData() {
 
     state.data.constraints =
       firstExistingColumn(sheet, ["Constraint","Constraints","القيد الإبداعي","القيود الإبداعية"]) || FALLBACK.constraints;
+
+    console.log("Zine lists loaded from Google Sheet.", {
+      subjects: state.data.subjects.length,
+      perspectives: state.data.perspectives.length,
+      methods: state.data.methods.length,
+      constraints: state.data.constraints.length
+    });
   } catch (err) {
-    console.warn("Using built-in Zine lists because Google Sheet could not be loaded.", err);
+    console.warn("Could not load published Zine sheet. Using fallback lists.", err);
   }
 }
 
