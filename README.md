@@ -1,29 +1,48 @@
-# مولد الوصفات الإبداعية — CSV Edition
+# مولد الوصفات الإبداعية — Data JS Edition
 
-هذه النسخة لا تعتمد على Google Sheets.
+هذه النسخة لا تستخدم Google Sheets ولا CSV ولا fetch.
 
-## ملفات البيانات
+## ملفات البيانات التي تعدلينها مستقبلًا
 
-### zine.csv
-الأعمدة:
-Subject | Perspective | Art Style | Constraint
+- zine-data.js
+- infographic-data.js
 
-### infographic.csv
-الأعمدة:
-Topic | Audience | Interaction Goal
+الموقع يحمّلهما مباشرة كملفات JavaScript، لذلك هذا هو الحل الأبسط والأثبت على GitHub Pages.
 
-## كيف تعدلين المحتوى لاحقًا
+## طريقة التعديل
 
-1. افتحي ملف CSV في Excel.
-2. أضيفي أو احذفي أو عدلي الصفوف.
-3. احفظي الملف بنفس الاسم.
-4. ارفعي الملف الجديد فقط إلى GitHub بدل الملف القديم.
-5. اعملي Commit changes.
-6. حدّثي الموقع.
+### zine-data.js
+ستجدين:
+- subjects
+- perspectives
+- methods
+- constraints
 
-لا تحتاجين تعديل أي ملف JavaScript.
+كل قائمة عبارة عن عناصر بين علامتي اقتباس.
 
-## مهم عند الحفظ من Excel
-اختاري CSV UTF-8 إن ظهر لك أكثر من نوع CSV، حتى تبقى العربية سليمة.
+مثال:
 
-الموقع يضيف timestamp عند قراءة CSV ويستخدم cache:no-store لتقليل مشكلة الكاش.
+"subjects": [
+  "الانتظار",
+  "الطعام بوصفه ذاكرة",
+  "موضوع جديد"
+]
+
+لإضافة عنصر:
+- أضيفي سطرًا جديدًا بين علامتي اقتباس.
+- ضعي فاصلة بعد السطر السابق.
+
+### infographic-data.js
+ستجدين:
+- topics
+- audiences
+- goals
+
+## بعد التعديل
+ارفعي فقط ملف البيانات الذي عدلتيه إلى GitHub بنفس الاسم ثم Commit changes.
+
+لا تحتاجين تعديل:
+- zine.js
+- infographic.js
+- HTML
+- CSS

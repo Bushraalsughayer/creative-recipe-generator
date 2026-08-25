@@ -1,99 +1,15 @@
 
-function parseCSV(text) {
-  const rows = [];
-  let row = [];
-  let field = "";
-  let inQuotes = false;
+const sourceData = window.INFOGRAPHIC_DATA;
 
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    const next = text[i + 1];
-
-    if (ch === '"' && inQuotes && next === '"') {
-      field += '"';
-      i++;
-    } else if (ch === '"') {
-      inQuotes = !inQuotes;
-    } else if (ch === ',' && !inQuotes) {
-      row.push(field);
-      field = "";
-    } else if ((ch === "\n" || ch === "\r") && !inQuotes) {
-      if (ch === "\r" && next === "\n") i++;
-      row.push(field);
-      rows.push(row);
-      row = [];
-      field = "";
-    } else {
-      field += ch;
-    }
-  }
-
-  if (field.length || row.length) {
-    row.push(field);
-    rows.push(row);
-  }
-
-  return rows;
+if (!sourceData) {
+  throw new Error("infographic-data.js لم يتم تحميله");
 }
-
-async function loadCSV(filename) {
-  const url = `${filename}?v=${Date.now()}`;
-  const response = await fetch(url, { cache: "no-store" });
-
-  if (!response.ok) {
-    throw new Error(`تعذر تحميل ${filename}`);
-  }
-
-  const text = await response.text();
-  const rows = parseCSV(text)
-    .filter(row => row.some(cell => String(cell).trim() !== ""));
-
-  if (rows.length < 2) {
-    throw new Error(`ملف ${filename} فارغ أو غير صالح`);
-  }
-
-  const headers = rows[0].map(h =>
-    String(h).replace(/^\uFEFF/, "").trim()
-  );
-
-  const data = {};
-  headers.forEach((header, colIndex) => {
-    if (!header) return;
-
-    data[header] = rows
-      .slice(1)
-      .map(row => String(row[colIndex] ?? "").trim())
-      .filter(Boolean);
-  });
-
-  return data;
-}
-
-function getColumn(data, names) {
-  for (const name of names) {
-    if (Array.isArray(data[name]) && data[name].length) {
-      return data[name];
-    }
-  }
-  return null;
-}
-
-function showLoadError(error) {
-  console.error(error);
-  const status = document.getElementById("statusMessage");
-  if (status) {
-    status.textContent = "تعذر تحميل ملف البيانات";
-    status.title = error?.message || "";
-  }
-}
-
-const DATA_FILE = "infographic.csv";
 
 const state = {
   data: {
-    topics: [],
-    audiences: [],
-    goals: []
+    topics: [...sourceData.topics],
+    audiences: [...sourceData.audiences],
+    goals: [...sourceData.goals]
   },
   locked: {
     topics: false,
@@ -110,7 +26,7 @@ const state = {
 const $ = id => document.getElementById(id);
 
 function randomItem(list, previous) {
-  if (!list || !list.length) return "";
+  if (!list.length) return "";
   if (list.length === 1) return list[0];
 
   let next = list[Math.floor(Math.random() * list.length)];
@@ -129,45 +45,12 @@ function generate() {
     if (!state.locked[key]) {
       state.current[key] = randomItem(state.data[key], state.current[key]);
     }
-    $(key + "Text").textContent = state.current[key] || "—";
+    $(key + "Text").textContent = state.current[key];
   });
 }
 
 function briefText() {
   return `صمّم إنفوجرافيك تفاعلي عن ${state.current.topics}. موجّه إلى ${state.current.audiences}. صمّم التجربة بحيث تساعد المستخدم على ${state.current.goals}.`;
-}
-
-async function loadData() {
-  $("statusMessage").textContent = "جاري تحميل البيانات…";
-
-  try {
-    const data = await loadCSV(DATA_FILE);
-
-    state.data.topics =
-      getColumn(data, ["Topic","Topics","الموضوع","الموضوعات"]);
-
-    state.data.audiences =
-      getColumn(data, ["Audience","Audiences","الفئة المستهدفة","الفئات المستهدفة"]);
-
-    state.data.goals =
-      getColumn(data, ["Interaction Goal","InteractionGoal","Goals","هدف التفاعل","أهداف التفاعل"]);
-
-    const missing = Object.entries(state.data)
-      .filter(([_, list]) => !list || !list.length)
-      .map(([key]) => key);
-
-    if (missing.length) {
-      throw new Error("أعمدة مفقودة أو فارغة: " + missing.join(", "));
-    }
-
-    $("statusMessage").textContent = "";
-    generate();
-  } catch (error) {
-    showLoadError(error);
-    ["topics","audiences","goals"].forEach(key => {
-      $(key + "Text").textContent = "تعذر تحميل البيانات";
-    });
-  }
 }
 
 document.querySelectorAll(".lock-btn").forEach(btn => {
@@ -179,13 +62,7 @@ document.querySelectorAll(".lock-btn").forEach(btn => {
   });
 });
 
-$("generateBtn").addEventListener("click", () => {
-  if (!state.data.topics.length) {
-    loadData();
-  } else {
-    generate();
-  }
-});
+$("generateBtn").addEventListener("click", generate);
 
 $("copyBtn").addEventListener("click", () => {
   navigator.clipboard.writeText(briefText()).then(() => {
@@ -200,4 +77,4 @@ document.querySelectorAll("[data-close]").forEach(btn => {
   btn.addEventListener("click", () => $(btn.dataset.close).close());
 });
 
-loadData();
+generate();
