@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>وسيلة تعليمية تفاعلية — مولد الوصفات الإبداعية</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="inner-page info-page">
+  <div class="noise"></div>
+  <div class="screen">
+    
+    <header class="inner-header">
+      <div class="inner-topline">
+        <nav class="breadcrumbs" aria-label="مسار الصفحة">
+          <a href="index.html">الرئيسية</a>
+          <span>/</span>
+          <span>وسيلة تعليمية تفاعلية</span>
+        </nav>
+
+        <div class="inner-utilities">
+          <button id="teacherBtn" class="plain-link">وضع المحرر</button>
+          <button id="aboutBtn" class="plain-link">كيف يعمل؟</button>
+        </div>
+      </div>
+
+      <div class="inner-tabs-row">
+        <nav class="project-tabs" aria-label="التنقل بين المشاريع">
+          <a href="zine.html" class="project-tab ">كتيب / Zine</a>
+          <a href="infographic.html" class="project-tab active" aria-current="page">وسيلة تعليمية تفاعلية / Interactive Infographic</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="inner-main">
+      <section class="generator" aria-live="polite">
+        <div class="brief-label">الوصفة الإبداعية</div>
+
+        <article class="idea-card subject-card">
+          <div class="card-top">
+            <span class="card-label">٠١ / الموضوع</span>
+            <button class="lock-btn" data-key="topics" aria-pressed="false">○ تثبيت</button>
+          </div>
+          <div class="card-copy">صمّم إنفوجرافيك تفاعلي عن <strong id="topicsText"></strong>.</div>
+        </article>
+
+        <article class="idea-card perspective-card">
+          <div class="card-top">
+            <span class="card-label">٠٢ / الفئة المستهدفة</span>
+            <button class="lock-btn" data-key="audiences" aria-pressed="false">○ تثبيت</button>
+          </div>
+          <div class="card-copy">موجّه إلى <strong id="audiencesText"></strong>.</div>
+        </article>
+
+        <article class="idea-card method-card">
+          <div class="card-top">
+            <span class="card-label">٠٣ / هدف التفاعل</span>
+            <button class="lock-btn" data-key="goals" aria-pressed="false">○ تثبيت</button>
+          </div>
+          <div class="card-copy">صمّم التجربة بحيث تساعد المستخدم على <strong id="goalsText"></strong>.</div>
+        </article>
+
+        <div class="generator-actions">
+          <button id="generateBtn" class="primary-btn">ولّد فكرة أخرى</button>
+          <button id="copyBtn" class="secondary-btn">نسخ الوصفة</button>
+          <span id="statusMessage" class="status-message"></span>
+        </div>
+      </section>
+    </main>
+
+    <footer class="unified-footer"></footer>
+  </div>
+
+  <dialog id="aboutDialog" class="modal">
+    <div class="modal-head">
+      <h2>كيف يعمل؟</h2>
+      <button class="close-btn" data-close="aboutDialog">×</button>
+    </div>
+    <div class="modal-body">
+      <p>ولّد نقطة بداية للمشروع، ثم ثبّت أي عنصر يعجبك وأعد توليد البقية.</p>
+      <p>الوصفة تحدد الموضوع والفئة المستهدفة وهدف التفاعل، أما طريقة التفاعل والأسلوب البصري فهما من قراراتك التصميمية.</p>
+    </div>
+  </dialog>
+
+  <dialog id="passwordDialog" class="modal password-modal">
+    <div class="modal-head">
+      <h2>دخول المحرر</h2>
+      <button class="close-btn" data-close="passwordDialog">×</button>
+    </div>
+    <div class="modal-body">
+      <label class="password-label" for="teacherPassword">كلمة السر</label>
+      <input id="teacherPassword" class="password-input" type="password" placeholder="أدخل كلمة السر">
+      <p id="passwordError" class="password-error"></p>
+      <button id="passwordSubmit" class="primary-btn">دخول وضع المحرر</button>
+    </div>
+  </dialog>
+
+  <dialog id="teacherDialog" class="modal teacher-modal">
+    <div class="modal-head">
+      <div>
+        <div>وضع المحرر / الوسيلة التعليمية التفاعلية</div>
+        <h2>التحكم ببنك الأفكار</h2>
+      </div>
+      <button class="close-btn" data-close="teacherDialog">×</button>
+    </div>
+
+    <div class="teacher-grid">
+      <div class="teacher-column">
+        <label>الموضوعات <span>عنصر في كل سطر</span></label>
+        <textarea id="topicsInput"></textarea>
+      </div>
+      <div class="teacher-column">
+        <label>الفئات المستهدفة <span>عنصر في كل سطر</span></label>
+        <textarea id="audiencesInput"></textarea>
+      </div>
+      <div class="teacher-column teacher-wide">
+        <label>أهداف التفاعل <span>عنصر في كل سطر</span></label>
+        <textarea id="goalsInput"></textarea>
+      </div>
+    </div>
+
+    <div class="teacher-actions">
+      <button id="saveLocalBtn" class="primary-btn">حفظ على هذا الجهاز</button>
+      <button id="shareBtn" class="secondary-btn">إنشاء رابط للطلاب</button>
+      <button id="resetBtn" class="secondary-btn">استعادة القوائم الأصلية</button>
+    </div>
+
+    <div id="sharePanel" class="share-panel hidden">
+      <label>رابط الطلاب</label>
+      <div class="share-row">
+        <input id="shareUrl" readonly dir="ltr">
+        <button id="copyShareBtn" class="secondary-btn">نسخ الرابط</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="infographic.js"></script>
+</body>
+</html>

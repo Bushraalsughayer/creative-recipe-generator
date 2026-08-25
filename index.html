@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مولد الوصفات الإبداعية</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="landing-page">
+  <div class="noise"></div>
+
+  <div class="landing-shell">
+    <header class="landing-topbar">
+      <button id="homeAboutBtn" class="plain-link">كيف يعمل؟</button>
+    </header>
+
+    <main class="landing-main">
+      <section class="landing-intro">
+        <h1>مولّد<br>الوصفات الإبداعية</h1>
+        <p>اختر نوع المشروع ثم ولّد نقطة بداية تساعدك على الانطلاق.</p>
+      </section>
+
+      <section class="landing-projects">
+        <a class="landing-project zine-choice" href="zine.html">
+          <span class="landing-project-num">01</span>
+          <div class="landing-project-name">
+            <strong>كتيّب</strong>
+            <span dir="ltr">Zine</span>
+          </div>
+        </a>
+
+        <a class="landing-project info-choice" href="infographic.html">
+          <span class="landing-project-num">02</span>
+          <div class="landing-project-name">
+            <strong>وسيلة تعليمية تفاعلية</strong>
+            <span dir="ltr">Interactive Infographic</span>
+          </div>
+        </a>
+      </section>
+    </main>
+
+    <footer class="landing-footer"></footer>
+  </div>
+
+  <dialog id="homeAboutDialog" class="modal">
+    <div class="modal-head">
+      <h2>كيف يعمل؟</h2>
+      <button class="close-btn" id="homeAboutClose">×</button>
+    </div>
+    <div class="modal-body">
+      <p>اختر نوع المشروع، ثم استخدم المولد للحصول على وصفة إبداعية كبداية. يمكنك تثبيت العناصر التي تعجبك وإعادة توليد البقية.</p>
+    </div>
+  </dialog>
+
+  <script>
+    const homeAboutBtn = document.getElementById("homeAboutBtn");
+    const homeAboutDialog = document.getElementById("homeAboutDialog");
+    const homeAboutClose = document.getElementById("homeAboutClose");
+    homeAboutBtn.addEventListener("click", () => homeAboutDialog.showModal());
+    homeAboutClose.addEventListener("click", () => homeAboutDialog.close());
+  </script>
+</body>
+</html>
