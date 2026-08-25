@@ -6,21 +6,23 @@ const SHEET_ID = "16iOSnylKxHB5XmvjWpdazfsKNHPrkfU-vc7lQIfhyuI";
  * do not cache the list, and do not read the list from any cache.
  * Always read from the source Google Sheet.
  *
- * لذلك:
- * - لا نستخدم localStorage أو sessionStorage أو IndexedDB.
- * - لا توجد قوائم احتياطية داخل الكود.
- * - نضيف cache-buster جديدًا لكل طلب إلى Google Sheets.
- * - إذا فشل المصدر، نعرض خطأ ولا نستخدم أي بيانات قديمة.
+ * Implementation:
+ * - no localStorage
+ * - no sessionStorage
+ * - no IndexedDB
+ * - no fallback lists
+ * - every request gets a unique cache-buster
+ * - data is read directly from the Google Sheet by gid
  */
-function loadGoogleSheetTab(sheetName) {
+function loadGoogleSheetByGid(gid) {
   return new Promise((resolve, reject) => {
     const callbackName = "__liveSheet_" + Math.random().toString(36).slice(2);
     const script = document.createElement("script");
     const cacheBuster = Date.now() + "_" + Math.random().toString(36).slice(2);
-    const timeout = setTimeout(() => finish(new Error("Google Sheet request timed out")), 10000);
+    const timer = setTimeout(() => finish(new Error("Google Sheet request timed out")), 10000);
 
     function finish(error, value) {
-      clearTimeout(timeout);
+      clearTimeout(timer);
       try { delete window[callbackName]; } catch (_) {}
       script.remove();
       error ? reject(error) : resolve(value);
@@ -28,8 +30,8 @@ function loadGoogleSheetTab(sheetName) {
 
     window[callbackName] = response => {
       try {
-        if (!response || response.status !== "ok") {
-          throw new Error("Google Sheet returned a non-OK response");
+        if (!response || response.status !== "ok" || !response.table) {
+          throw new Error("Google Sheet returned an invalid response");
         }
 
         const headers = response.table.cols.map(col => (col.label || "").trim());
@@ -37,15 +39,15 @@ function loadGoogleSheetTab(sheetName) {
           row.c.map(cell => cell && cell.v != null ? String(cell.v).trim() : "")
         );
 
-        const result = {};
-        headers.forEach((header, columnIndex) => {
+        const data = {};
+        headers.forEach((header, colIndex) => {
           if (!header) return;
-          result[header] = rows
-            .map(row => row[columnIndex] || "")
+          data[header] = rows
+            .map(row => row[colIndex] || "")
             .filter(Boolean);
         });
 
-        finish(null, result);
+        finish(null, data);
       } catch (error) {
         finish(error);
       }
@@ -53,10 +55,12 @@ function loadGoogleSheetTab(sheetName) {
 
     const tqx = `out:json;responseHandler:${callbackName}`;
 
-    // Unique URL every time so the browser/CDN cannot reuse a previous list response.
+    // Important: gid is used instead of the tab name.
+    // Unique _source_refresh forces a fresh request every page load.
     script.src =
       `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?` +
-      `sheet=${encodeURIComponent(sheetName)}` +
+      `gid=${encodeURIComponent(gid)}` +
+      `&headers=1` +
       `&tqx=${encodeURIComponent(tqx)}` +
       `&_source_refresh=${encodeURIComponent(cacheBuster)}`;
 
@@ -75,13 +79,19 @@ function getRequiredColumn(data, possibleHeaders, readableName) {
 }
 
 function randomItem(list, previous) {
+  if (!Array.isArray(list) || list.length === 0) {
+    throw new Error("Cannot generate from an empty source list");
+  }
   if (list.length === 1) return list[0];
+
   let value = list[Math.floor(Math.random() * list.length)];
   while (value === previous) {
     value = list[Math.floor(Math.random() * list.length)];
   }
   return value;
 }
+
+const INFO_GID = "0";
 
 const state = {
   data: null,
@@ -131,21 +141,34 @@ document.querySelectorAll("[data-close]").forEach(btn => {
 
 (async function initFromSourceOnly() {
   try {
-    const sheet = await loadGoogleSheetTab("Interactive Infographic");
+    const sheet = await loadGoogleSheetByGid(INFO_GID);
 
     state.data = {
-      topics: getRequiredColumn(sheet, ["Topic","Topics","الموضوع","الموضوعات"], "Topic"),
-      audiences: getRequiredColumn(sheet, ["Audience","Audiences","الفئة المستهدفة","الفئات المستهدفة"], "Audience"),
-      goals: getRequiredColumn(sheet, ["Interaction Goal","InteractionGoal","Goals","هدف التفاعل","أهداف التفاعل"], "Interaction Goal")
+      topics: getRequiredColumn(
+        sheet,
+        ["Topic","Topics","الموضوع","الموضوعات"],
+        "Topic"
+      ),
+      audiences: getRequiredColumn(
+        sheet,
+        ["Audience","Audiences","الفئة المستهدفة","الفئات المستهدفة"],
+        "Audience"
+      ),
+      goals: getRequiredColumn(
+        sheet,
+        ["Interaction Goal","InteractionGoal","Goals","هدف التفاعل","أهداف التفاعل"],
+        "Interaction Goal"
+      )
     };
 
     $("generateBtn").disabled = false;
     $("copyBtn").disabled = false;
     generate();
+
   } catch (error) {
-    console.error(error);
+    console.error("Interactive infographic sheet loading error:", error);
     $("statusMessage").classList.add("error-message");
     $("statusMessage").textContent =
-      "تعذر تحميل القوائم مباشرة من Google Sheet. تأكد من نشر الشيت وأسماء التبويب والأعمدة ثم حدّث الصفحة.";
+      "تعذر تحميل قوائم الإنفوجرافيك من Google Sheet. تحقق من عناوين الأعمدة ثم حدّث الصفحة.";
   }
 })();
