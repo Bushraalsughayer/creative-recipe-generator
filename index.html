@@ -11,7 +11,6 @@
 </head>
 <body class="landing-page">
   <div class="noise"></div>
-
   <div class="landing-shell">
     <header class="landing-topbar">
       <button id="homeAboutBtn" class="plain-link">كيف يعمل؟</button>
@@ -56,11 +55,9 @@
   </dialog>
 
   <script>
-    const homeAboutBtn = document.getElementById("homeAboutBtn");
-    const homeAboutDialog = document.getElementById("homeAboutDialog");
-    const homeAboutClose = document.getElementById("homeAboutClose");
-    homeAboutBtn.addEventListener("click", () => homeAboutDialog.showModal());
-    homeAboutClose.addEventListener("click", () => homeAboutDialog.close());
+    const d = document.getElementById("homeAboutDialog");
+    document.getElementById("homeAboutBtn").addEventListener("click", () => d.showModal());
+    document.getElementById("homeAboutClose").addEventListener("click", () => d.close());
   </script>
 </body>
 </html>

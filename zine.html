@@ -22,14 +22,13 @@
         </nav>
 
         <div class="inner-utilities">
-          <button id="teacherBtn" class="plain-link">وضع المحرر</button>
           <button id="aboutBtn" class="plain-link">كيف يعمل؟</button>
         </div>
       </div>
 
       <div class="inner-tabs-row">
         <nav class="project-tabs" aria-label="التنقل بين المشاريع">
-          <a href="zine.html" class="project-tab active" aria-current="page">كتيب / Zine</a>
+          <a href="zine.html" class="project-tab active">كتيب / Zine</a>
           <a href="infographic.html" class="project-tab ">وسيلة تعليمية تفاعلية / Interactive Infographic</a>
         </nav>
       </div>
@@ -42,33 +41,33 @@
         <article class="idea-card subject-card">
           <div class="card-top">
             <span class="card-label">٠١ / الموضوع</span>
-            <button class="lock-btn" data-key="subjects" aria-pressed="false">○ تثبيت</button>
+            <button class="lock-btn" data-key="subjects">○ تثبيت</button>
           </div>
-          <div class="card-copy">صمّم مطبوعة عن <strong id="subjectsText"></strong>.</div>
+          <div class="card-copy">صمّم مطبوعة عن <strong id="subjectsText">...</strong>.</div>
         </article>
 
         <article class="idea-card perspective-card">
           <div class="card-top">
             <span class="card-label">٠٢ / وجهة النظر</span>
-            <button class="lock-btn" data-key="perspectives" aria-pressed="false">○ تثبيت</button>
+            <button class="lock-btn" data-key="perspectives">○ تثبيت</button>
           </div>
-          <div class="card-copy">اعرض الموضوع من وجهة نظر <strong id="perspectivesText"></strong>.</div>
+          <div class="card-copy">اعرض الموضوع من وجهة نظر <strong id="perspectivesText">...</strong>.</div>
         </article>
 
         <article class="idea-card method-card">
           <div class="card-top">
             <span class="card-label">٠٣ / الأسلوب الفني</span>
-            <button class="lock-btn" data-key="methods" aria-pressed="false">○ تثبيت</button>
+            <button class="lock-btn" data-key="methods">○ تثبيت</button>
           </div>
-          <div class="card-copy">استكشف الفكرة باستخدام <strong id="methodsText"></strong>.</div>
+          <div class="card-copy">استكشف الفكرة باستخدام <strong id="methodsText">...</strong>.</div>
         </article>
 
         <article class="idea-card constraint-card">
           <div class="card-top">
             <span class="card-label">٠٤ / القيد الإبداعي</span>
-            <button class="lock-btn" data-key="constraints" aria-pressed="false">○ تثبيت</button>
+            <button class="lock-btn" data-key="constraints">○ تثبيت</button>
           </div>
-          <div class="card-copy">بشرط أن <strong id="constraintsText"></strong>.</div>
+          <div class="card-copy">بشرط أن <strong id="constraintsText">...</strong>.</div>
         </article>
 
         <div class="generator-actions">
@@ -91,70 +90,6 @@
       <p>ولّد نقطة بداية لفكرة مطبوعتك، ثم ثبّت أي جزء يعجبك وأعد توليد البقية.</p>
       <p>المولد يعطيك بداية فقط؛ ويبقى عليك البحث وتطوير الفكرة واتخاذ القرارات التصميمية.</p>
     </div>
-  </dialog>
-
-  <dialog id="passwordDialog" class="modal password-modal">
-    <div class="modal-head">
-      <h2>دخول المحرر</h2>
-      <button class="close-btn" data-close="passwordDialog">×</button>
-    </div>
-    <div class="modal-body">
-      <label class="password-label" for="teacherPassword">كلمة السر</label>
-      <input id="teacherPassword" class="password-input" type="password" placeholder="أدخل كلمة السر">
-      <p id="passwordError" class="password-error"></p>
-      <button id="passwordSubmit" class="primary-btn">دخول وضع المحرر</button>
-    </div>
-  </dialog>
-
-  <dialog id="teacherDialog" class="modal teacher-modal">
-    <div class="modal-head">
-      <div>
-        <div>وضع المحرر</div>
-        <h2>التحكم ببنك الأفكار</h2>
-      </div>
-      <button class="close-btn" data-close="teacherDialog">×</button>
-    </div>
-
-    <div class="teacher-grid">
-      <div class="teacher-column">
-        <label>الموضوعات <span>عنصر في كل سطر</span></label>
-        <textarea id="subjectsInput"></textarea>
-      </div>
-      <div class="teacher-column">
-        <label>وجهات النظر <span>عنصر في كل سطر</span></label>
-        <textarea id="perspectivesInput"></textarea>
-      </div>
-      <div class="teacher-column">
-        <label>الأساليب الفنية <span>عنصر في كل سطر</span></label>
-        <textarea id="methodsInput"></textarea>
-      </div>
-      <div class="teacher-column">
-        <label>القيود الإبداعية <span>عنصر في كل سطر</span></label>
-        <textarea id="constraintsInput"></textarea>
-      </div>
-    </div>
-
-    <div class="teacher-options">
-      <label class="toggle"><input type="checkbox" id="enablePerspective" checked> استخدام وجهة النظر</label>
-      <label class="toggle"><input type="checkbox" id="enableMethod" checked> استخدام الأسلوب الفني</label>
-      <label class="toggle"><input type="checkbox" id="enableConstraint" checked> استخدام القيد الإبداعي</label>
-    </div>
-
-    <div class="teacher-actions">
-      <button id="saveLocalBtn" class="primary-btn">حفظ على هذا الجهاز</button>
-      <button id="shareBtn" class="secondary-btn">إنشاء رابط للطلاب</button>
-      <button id="resetBtn" class="secondary-btn">استعادة القوائم الأصلية</button>
-    </div>
-
-    <div id="sharePanel" class="share-panel hidden">
-      <label>رابط الطلاب</label>
-      <div class="share-row">
-        <input id="shareUrl" readonly dir="ltr">
-        <button id="copyShareBtn" class="secondary-btn">نسخ الرابط</button>
-      </div>
-    </div>
-
-    <p class="teacher-note">كلمة السر مناسبة للاستخدام الصفي العادي، لكنها ليست حماية خادم حقيقية لأن الموقع ثابت.</p>
   </dialog>
 
   <script src="zine.js"></script>
